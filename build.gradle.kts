@@ -72,3 +72,8 @@ tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
     options.compilerArgs.add("-parameters")
 }
+
+checkstyle {
+    toolVersion = "10.20.1"
+    configFile = file("config/checkstyle/checkstyle.xml")
+}
