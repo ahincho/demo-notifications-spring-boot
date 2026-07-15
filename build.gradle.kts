@@ -5,8 +5,41 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
     mavenLocal()
+    mavenCentral()
+    // GitHub Packages of the Spring Boot starter (peers cross-repo dependency).
+    // The starter transitively depends on pe.edu.nova.java.libs:nova-notifications:1.0.0
+    // which is also published to its own repo (nova-java-notifications); Gradle will
+    // resolve that automatically as long as both maven {} entries are configured.
+    // NOVA_PACKAGES_READ_TOKEN is a PAT with packages:read scope; falls back to
+    // GITHUB_TOKEN if not set (GITHUB_TOKEN can read packages within the same repo
+    // but not across repos, so cross-repo dependencies would fail without the PAT).
+    maven {
+        name = "GitHubPackages-NovaNotifications"
+        url = uri("https://maven.pkg.github.com/ahincho/nova-java-notifications-spring-boot-starter")
+        val token = System.getenv("NOVA_PACKAGES_READ_TOKEN")
+            ?: System.getenv("NOVA_RELEASE_PAT")
+            ?: System.getenv("GITHUB_TOKEN")
+        if (!token.isNullOrBlank()) {
+            credentials {
+                username = System.getenv("GITHUB_ACTOR") ?: "x-access-token"
+                password = token
+            }
+        }
+    }
+    maven {
+        name = "GitHubPackages-NovaNotifications-Core"
+        url = uri("https://maven.pkg.github.com/ahincho/nova-java-notifications")
+        val token = System.getenv("NOVA_PACKAGES_READ_TOKEN")
+            ?: System.getenv("NOVA_RELEASE_PAT")
+            ?: System.getenv("GITHUB_TOKEN")
+        if (!token.isNullOrBlank()) {
+            credentials {
+                username = System.getenv("GITHUB_ACTOR") ?: "x-access-token"
+                password = token
+            }
+        }
+    }
 }
 
 dependencies {
